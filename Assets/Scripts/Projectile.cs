@@ -67,7 +67,7 @@ public class Projectile : MonoBehaviour {
     {
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            LaunchProjectileTo(target);
+            LaunchUpRamp();
         }
     }
 
@@ -113,6 +113,8 @@ public class Projectile : MonoBehaviour {
     // Calculate Torque for rolling on a plane
     private Vector3 CalculateTorque(Vector3 linearVelocity, Vector3 radius)
     {
+        Debug.Log("radiusMag: " + radius.magnitude);
+        Debug.Log("velMag: " + linearVelocity.magnitude);
         return radius.magnitude != 0 ? m_rotationAxis * (linearVelocity.magnitude / radius.magnitude) : Vector3.zero;
     }
 
@@ -193,8 +195,54 @@ public class Projectile : MonoBehaviour {
         return Vector3.Distance(A, B);
     }
 
-    // Calculate the impulse when there is a ramp involved
+    public Transform ramp;
+    public Transform pivot;
 
+    public void LaunchUpRamp()
+    {
+        float yHeight = Mathf.Abs(Mathf.Sin(pivot.localRotation.eulerAngles.z / 57.2958f) * ramp.localScale.x);
+        Debug.Log("Ramp local scale x: " + ramp.localScale.x);
+        Debug.Log("Ramp x direction: " + ramp.TransformDirection(ramp.right));
+        Debug.Log("Player x direction: " + m_direction);
+        Debug.Log("Ramp angle: " + pivot.localRotation.eulerAngles.z);
+        Debug.Log("Ramp height: " + yHeight);
+        float y = CalculateYInitialVelocity(yHeight * 3, Mathf.Abs(Physics.gravity.y));
+        Debug.Log("Initial YieldInstruction velocity: " + y);
+        float time = CalculateTimeToPeak(y, Mathf.Abs(Physics.gravity.y));
+        Vector3 edgeOfRamp = transform.TransformPoint(transform.position.x + transform.localScale.x, transform.position.y + transform.localScale.y,
+                                                        transform.position.z + transform.localScale.z);
+        Debug.Log(edgeOfRamp);
+        Vector3 impulse = CalculateXZInitialVelocity(edgeOfRamp.x - target.position.x, edgeOfRamp.z- target.position.z, time * 2);
+        impulse.y = y;
+
+
+        // Get final velocity x.  This is the initial veloctiy of the arc when leaving the jump.
+        float finalVelocityX = impulse.x;
+        float finalVelocityZ = impulse.z;
+        Debug.Log("fvx: " + finalVelocityX);
+
+        Vector3 rampImpulse = CalculateImpulseUpARamp(ramp.localScale.x, pivot.localRotation.eulerAngles.z,
+                                                    m_planeFriction, Physics.gravity.y, finalVelocityX);
+        Debug.Log("Ramp Impulse: " + rampImpulse);
+        m_rb.AddForce(rampImpulse, ForceMode.VelocityChange);
+        //m_rb.AddTorque(CalculateTorque(rampImpulse, m_radius), ForceMode.VelocityChange);
+    }
+
+    // Calculate the impulse when there is a ramp involved
+    private Vector3 CalculateImpulseUpARamp(float distance, float angle, float friction, float gravity, float finalXVelocity)
+    {
+        float acceleration = Mathf.Abs(gravity) * distance * (Mathf.Sin(angle / 57.2958f) * (Mathf.Cos(angle / 57.2958f) * friction));
+        float initialXVelocity = Mathf.Sqrt(Mathf.Abs((finalXVelocity * finalXVelocity) - 2 * acceleration * distance));
+        Debug.Log(initialXVelocity);
+
+        return m_direction * initialXVelocity;
+    }
+
+    // Calculate ramp angle
+    private float CalculateRampAngle(Vector3 floorVector, Vector3 rampVector)
+    {
+        return Mathf.Acos(Vector3.Dot(floorVector, rampVector) / Vector3.Magnitude(floorVector) * Vector3.Magnitude(rampVector)) * 57.2958f;
+    }
 
     // Calculate the torque when there is a ramp involved
 
