@@ -58,27 +58,10 @@ public class Projectile : MonoBehaviour {
         m_radius *= 0.5f;
         // Save the start position
         m_initialPosition = transform.position;
+
+        m_direction = transform.forward;
+        m_rotationAxis = transform.right;
 	}
-
-    public float distance;
-    public Transform target;
-
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            LaunchUpRamp();
-        }
-    }
-
-    void FixedUpdate()
-    {
-        // Stop angular velocity when the projectile has reached the proper distance
-        if(Vector3.Distance(m_initialPosition, transform.position) > m_distance)
-        {
-            m_rb.angularVelocity = Vector3.zero;
-        }
-    }
 
     // Slide/Roll the projectile
     public void SlideProjectile(float distance, bool useTorque = false)
@@ -88,6 +71,7 @@ public class Projectile : MonoBehaviour {
 
         if (!useTorque)
         {
+            m_rb.freezeRotation = true;
             m_rb.AddForce(m_impulse, ForceMode.VelocityChange);
         }
         else
@@ -113,8 +97,6 @@ public class Projectile : MonoBehaviour {
     // Calculate Torque for rolling on a plane
     private Vector3 CalculateTorque(Vector3 linearVelocity, Vector3 radius)
     {
-        Debug.Log("radiusMag: " + radius.magnitude);
-        Debug.Log("velMag: " + linearVelocity.magnitude);
         return radius.magnitude != 0 ? m_rotationAxis * (linearVelocity.magnitude / radius.magnitude) : Vector3.zero;
     }
 
@@ -122,15 +104,18 @@ public class Projectile : MonoBehaviour {
     // Launch in the air aiming for a target, pass in a target
     public void LaunchProjectileTo(Transform target)
     {
-        float y = CalculateYInitialVelocity(transform.position.y - target.position.y, Mathf.Abs(Physics.gravity.y));
-        float time = CalculateTimeToPeak(y, Mathf.Abs(Physics.gravity.y));
-        Vector3 impulse = CalculateXZInitialVelocity(transform.position.x - target.position.x, transform.position.z - target.position.z, time);
+        m_rb.freezeRotation = false;
+        m_rb.velocity = Vector3.zero;
+
+        float y = CalculateYInitialVelocity((target.position.y - transform.position.y) + (target.position.y - m_plane.transform.position.y), Physics.gravity.y); // Add a bit to create an arc
+        float time = CalculateTimeToPeak(y, Physics.gravity.y) * 2;
+        Vector3 impulse = CalculateXZInitialVelocity(target.position.x - transform.position.x, target.position.z - transform.position.z, time);
         impulse.y = y;
 
         m_rb.AddForce(impulse, ForceMode.VelocityChange);
     }
 
-    // Calculate the initial velocity on Y
+    // Calculate the initial velocity on Y (to get over a wall, creates an arc)
     private float CalculateYInitialVelocity(float yDisplacement, float gravity, float finalYVelocity = 0.0f)
     {
         return yDisplacement != 0 ? Mathf.Sqrt(Mathf.Abs((finalYVelocity * finalYVelocity) - 2 * gravity * yDisplacement)) : 0.0f;
@@ -195,6 +180,7 @@ public class Projectile : MonoBehaviour {
         return Vector3.Distance(A, B);
     }
 
+    /*
     public Transform ramp;
     public Transform pivot;
 
@@ -246,8 +232,6 @@ public class Projectile : MonoBehaviour {
 
     // Calculate the torque when there is a ramp involved
 
-
-
-
+    */
 
 }
