@@ -6,6 +6,7 @@ public class Game : MonoBehaviour {
     public Projectile m_ball;
     public Transform m_target;
     public PowerMeter m_powerMeter;
+    public ShootBall m_shootBall;
 
     private bool m_start = false;
     private bool m_useTorque = false;
@@ -35,6 +36,8 @@ public class Game : MonoBehaviour {
             m_ballRB.velocity = Vector3.zero;
             m_ballRB.angularVelocity = Vector3.zero;
             m_powerMeter.ResetBar();
+            if(m_shootBall != null)
+                m_shootBall.ResetBackboard();
         }
 
         if(Input.GetKeyDown(KeyCode.Space))

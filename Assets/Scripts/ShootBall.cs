@@ -10,6 +10,16 @@ public class ShootBall : MonoBehaviour {
     public GameObject m_playerWait, m_playerJump;
     public Transform m_shootPosition;
 
+    private Color m_oldColor;
+    public MeshRenderer m_backboard;
+    public GameObject m_light;
+
+    void Start()
+    {
+        m_oldColor = m_backboard.material.color;
+        m_light.SetActive(false);
+    }
+
     void OnTriggerEnter(Collider other)
     {
         Projectile ball = other.GetComponent<Projectile>();
@@ -37,6 +47,9 @@ public class ShootBall : MonoBehaviour {
             Jump();
             ball.transform.position = m_shootPosition.position;
             ball.LaunchProjectileTo(m_target);
+            m_backboard.material.color = Color.red;
+            m_light.SetActive(true);
+
         }
     }
 
@@ -54,5 +67,11 @@ public class ShootBall : MonoBehaviour {
         Vector3 courtPos = m_playerJump.transform.position;
         m_playerJump.transform.position = m_playerWait.transform.position;
         m_playerWait.transform.position = courtPos;
+    }
+
+    public void ResetBackboard()
+    {
+        m_backboard.material.color = m_oldColor;
+        m_light.SetActive(false);
     }
 }
