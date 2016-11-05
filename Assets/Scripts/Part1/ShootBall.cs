@@ -28,6 +28,15 @@ public class ShootBall : MonoBehaviour {
             m_canShoot = true;
             StartCoroutine(WaitToShoot(ball));
         }
+        else
+        {
+            Ball ball2 = other.GetComponent<Ball>();
+            if(ball2 != null)
+            {
+                m_canShoot = true;
+                StartCoroutine(WaitToShoot(ball2));
+            }
+        }
     }
 
     void OnTriggerExit(Collider other)
@@ -37,12 +46,34 @@ public class ShootBall : MonoBehaviour {
         {
             m_canShoot = false;
         }
+        else
+        {
+            Ball ball2 = other.GetComponent<Ball>();
+            if (ball2 != null)
+            {
+                m_canShoot = false;
+            }
+        }
     }
 
     private IEnumerator WaitToShoot(Projectile ball)
     {
         yield return new WaitForSeconds(1);
         if(m_canShoot)
+        {
+            Jump();
+            ball.transform.position = m_shootPosition.position;
+            ball.LaunchProjectileTo(m_target);
+            m_backboard.material.color = Color.red;
+            m_light.SetActive(true);
+
+        }
+    }
+
+    private IEnumerator WaitToShoot(Ball ball)
+    {
+        yield return new WaitForSeconds(1);
+        if (m_canShoot)
         {
             Jump();
             ball.transform.position = m_shootPosition.position;

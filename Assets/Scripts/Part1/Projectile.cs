@@ -25,7 +25,7 @@ public class Projectile : MonoBehaviour {
     private Vector3 m_initialPosition;
     private float m_distance;
 
-
+    /*
     /////////////////
     // Second Part //
     /////////////////
@@ -37,7 +37,7 @@ public class Projectile : MonoBehaviour {
     private float m_yVelocityInitial;
     private float m_xDistance;
     private float m_yDistance;
-
+    */
 
     ////////////////////////
     // Rigidbody reference//

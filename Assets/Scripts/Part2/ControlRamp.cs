@@ -6,27 +6,41 @@ public class ControlRamp : MonoBehaviour {
     public Transform m_rampPivot;
     public Transform m_ramplength;
 
-    public float m_minAngle, m_maxAngle;
     public float m_minLength, m_maxLength;
 
     public float m_rotationSpeed;
     public float m_stretchSpeed;
 
+    private bool m_canControlRamp = true;
+
 	void Update () 
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-	    if(horizontal > 0.1f || horizontal < -0.1f)
+        if (m_canControlRamp)
         {
-            StretchRamp(horizontal);
-        }
+            float horizontal = Input.GetAxis("Horizontal");
+            float vertical = Input.GetAxis("Vertical");
 
-        if(vertical > 0.1f || vertical < -0.1f)
-        {
-            RotateRamp(vertical);
+            if (horizontal > 0.1f || horizontal < -0.1f)
+            {
+                StretchRamp(horizontal);
+            }
+
+            if (vertical > 0.1f || vertical < -0.1f)
+            {
+                RotateRamp(vertical);
+            }
         }
 	}
+
+    public void StartRampControl()
+    {
+        m_canControlRamp = true;
+    }
+
+    public void StopRampControl()
+    {
+        m_canControlRamp = false;
+    }
 
     private void RotateRamp(float direction)
     {
@@ -42,7 +56,7 @@ public class ControlRamp : MonoBehaviour {
     {
         Vector3 newScale = m_ramplength.localScale;
 
-        newScale.y = Mathf.Clamp(newScale.y + (direction * m_stretchSpeed * Time.deltaTime), m_minLength, m_maxLength);
+        newScale.x = Mathf.Clamp(newScale.x + (direction * m_stretchSpeed * Time.deltaTime), m_minLength, m_maxLength);
 
         m_ramplength.localScale = newScale;
     }
