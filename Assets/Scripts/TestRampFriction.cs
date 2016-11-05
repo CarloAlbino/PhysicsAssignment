@@ -2,30 +2,47 @@
 using System.Collections;
 
 public class TestRampFriction : MonoBehaviour {
-    public float power;
+    public float m_time = 2.0f;
     private Rigidbody m_rb;
-	// Use this for initialization
-	void Start () {
+
+    public float m_angle;
+    public float m_friction;
+    public float m_mass;
+
+	void Start () 
+    {
         m_rb = GetComponent<Rigidbody>();
 	}
 	
-	// Update is called once per frame
-	void Update () {
+	void Update () 
+    {
 	    if(Input.GetKeyDown(KeyCode.Space))
         {
             Impulse();
         }
 	}
 
-    private float CalculatePushForce(float angle, float friction, float mass, float gravity)
+    private float CalculateRampPushForce(float angle, float friction, float mass, float gravity)
     {
         return mass * gravity * Mathf.Sin(angle) + friction * mass * gravity * Mathf.Cos(angle);
     }
 
+    private float CalculateRampAcceleration(float force, float mass)
+    {
+        return mass != 0 ? force / mass : 0.0f;
+    }
+
+    private float CalculateRampInitialVelocity(float finalVelocity, float acceleration, float time)
+    {
+        return time != 0 ? finalVelocity/time - (acceleration*time)/2 : 0.0f;
+    }
 
     private void Impulse()
     {
-        Vector3 m_direction = Vector3.right * (Mathf.Abs(Mathf.Sqrt(2)) * Mathf.Abs(Mathf.Sqrt(15)) * Mathf.Abs(Mathf.Sqrt(Mathf.Abs(-9.81f))) * Mathf.Abs(Mathf.Sqrt(0.6f)) * Mathf.Sin(45));
+        float impulseForce = CalculateRampPushForce(m_angle, m_friction, m_mass, Physics.gravity.y);
+        impulseForce = CalculateRampAcceleration(impulseForce, m_mass);
+        impulseForce = CalculateRampInitialVelocity(0, impulseForce, m_time);
+        Vector3 m_direction = Vector3.forward *  impulseForce;
         m_rb.AddForce(m_direction, ForceMode.VelocityChange);
     }
 
