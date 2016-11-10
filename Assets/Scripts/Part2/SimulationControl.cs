@@ -3,7 +3,7 @@ using System.Collections;
 
 public class SimulationControl : MonoBehaviour {
 
-    public Ball m_ball;
+    public BallPhysics m_ball;
     public ControlRamp m_ramp;
     public PowerMeter2 m_powerMeter;
 

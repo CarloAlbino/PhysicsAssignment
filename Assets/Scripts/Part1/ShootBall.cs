@@ -30,7 +30,7 @@ public class ShootBall : MonoBehaviour {
         }
         else
         {
-            Ball ball2 = other.GetComponent<Ball>();
+            BallPhysics ball2 = other.GetComponent<BallPhysics>();
             if(ball2 != null)
             {
                 m_canShoot = true;
@@ -70,7 +70,7 @@ public class ShootBall : MonoBehaviour {
         }
     }
 
-    private IEnumerator WaitToShoot(Ball ball)
+    private IEnumerator WaitToShoot(BallPhysics ball)
     {
         yield return new WaitForSeconds(1);
         if (m_canShoot)

@@ -5,8 +5,9 @@ using System.Collections;
 public class PowerMeter2 : MonoBehaviour {
 
     public float m_barSpeed = 5.0f;
-    [Range(0.0f, 1.0f)]
-    public float m_extraPercentage = 0.3f;
+    [Range(1.0f, 2.0f)]
+    public float m_barMaxValue = 1.0f;
+    public float m_sweetSpotLeaway = 0.25f;
 
     private float m_power = 0.0f;
     private Slider m_slider;
@@ -15,6 +16,7 @@ public class PowerMeter2 : MonoBehaviour {
 	void Start () 
     {
         m_slider = GetComponent<Slider>();
+        m_slider.maxValue = m_barMaxValue;
 	}
 
 	void Update () 
@@ -33,7 +35,15 @@ public class PowerMeter2 : MonoBehaviour {
     public float StopPowerMeter()
     {
         m_startPowerMeter = false;
-        return (m_slider.value + m_slider.maxValue * m_extraPercentage)/m_slider.maxValue;
+
+        if (m_slider.value > 1 - m_sweetSpotLeaway && m_slider.value < 1 + m_sweetSpotLeaway)
+        {
+            return 1.0f;
+        }
+        else
+        {
+            return m_slider.value;
+        }
     }
 
     public void ResetBar()
